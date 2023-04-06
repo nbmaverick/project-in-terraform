@@ -6,6 +6,7 @@ resource "aws_vpc" "main" {
   tags = {
     Name = "VPC"
 }
+}
 
 resource "aws_subnet" "public_subnet" {
   vpc_id = aws_vpc.main.id
@@ -26,3 +27,25 @@ resource "aws_internet_gateway" "internet_gateway" {
   }
 }
 
+resource "aws_route_table" "route_table" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "RT"
+  }
+}
+
+resource "aws_route" "default_route" {
+  route_table_id = aws_route_table.route_table.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.internet_gateway.id
+
+  tags = {
+    Name = "Default RT"
+  }
+}
+
+resource "aws_route_table_association" "route_table_association" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.route_table.id
+}
