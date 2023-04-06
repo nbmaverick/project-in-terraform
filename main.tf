@@ -74,3 +74,24 @@ resource "aws_security_group" "security_group" {
   }
 }
 
+resource "aws_key_pair" "my_key" {
+  key_name   = "my_key"
+  public_key = file("~/.ssh/id_rsa.pub")
+}
+
+resource "aws_instance" "web" {
+  ami           = data.aws_ami.server_ami.id
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.public_subnet.id
+  key_name = aws_key_pair.my_key.id
+  vpc_security_group_ids = [ "aws_security_group.security_group.id" ]
+
+  tags = {
+    Name = "Web"
+  }
+
+  root_block_device {
+    volume_size = 8
+  }
+}
+
